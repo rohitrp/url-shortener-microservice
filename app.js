@@ -19,27 +19,40 @@ app.get('/new/*', function(req, res) {
 
     var collection = db.collection('urls')
     
-    collection.findOneAndUpdate(
-      { _id: 'urlId' },
-      { $inc: { sequence_value: 1 }},
-      {
-        upsert: true,
-        returnNewDocument: true
-      },
-      function(err, updated) {
+    collection.find({
+      original_url: original_url
+    }, {
+      _id: 0,
+      original_url: 1,
+      short_url: 1
+    }).toArray(function(err, data) {
+      if (data.length == 0) {
+        collection.findOneAndUpdate(
+          { _id: 'urlId' },
+          { $inc: { sequence_value: 1 }},
+          function(err, updated) {
 
-        collection.insert({
-          
-          _id: updated.value.sequence_value,
-          original_url: original_url,
-          short_url: idToShortUrl(updated.value.sequence_value)
-          
-        }, function(err) {
-          if (err) throw err
-          db.close()
-        })
+            collection.insert({
+
+              _id: updated.value.sequence_value,
+              original_url: original_url,
+              short_url: idToShortUrl(updated.value.sequence_value)
+
+            }, function(err) {
+              if (err) throw err
+              db.close()
+              res.json({
+                original_url: original_url,
+                short_url: idToShortUrl(updated.value.sequence_value)
+              })
+            })
+          }
+        )
+      } else {
+        db.close()
+        res.json(data[0])
       }
-    )
+    })   
   })
 
 })
@@ -48,10 +61,10 @@ function idToShortUrl(id) {
   var map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     , shortUrl = []
   
-  while (id) {
+  do {
     shortUrl.unshift(map.charAt(id % 62))
     id = Math.floor(id / 62)
-  }
+  } while(id)
   
   return shortUrl.join('')
 }
@@ -59,12 +72,17 @@ function idToShortUrl(id) {
 // Route to initialize the sequence counter
 app.get('/init', function(req, res) {
   mongo.connect(mongoUrl, function(err, db) {
-    db.collection('urls').insert({
+    var collection = db.collection('urls')
+    
+    collection.remove({})
+    
+    collection.insert({
       _id: 'urlId',
       sequence_value: 0
     }, function(err) {
       if (err) throw err
       db.close()
+      res.end("Database initialized")
     })
   })
 })
