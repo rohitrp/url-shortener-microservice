@@ -1,5 +1,7 @@
 var express = require('express')
   , url = require('url')
+  , http = require('http')
+  , request = require('request')
   , mongo = require('mongodb').MongoClient
   , mongoUrl = "mongodb://localhost:27017/freecodecamp"
   , app = express()
@@ -12,8 +14,15 @@ app.get('/', function(req, res) {
 })
 
 app.get('/new/*', function(req, res) {
-  var original_url = url.parse(req.url, true).path.replace('\/new\/', '')
+  var original_url = 'http://' + url.parse(req.url, true).path.replace(/\/new\/|http:\/\/|https:\/\//gi, '')
   
+  console.log(original_url)
+  
+  checkUrlExists(original_url, res, insertData)  
+  
+})
+
+function insertData(res, original_url) {
   mongo.connect(mongoUrl, function(err, db) {
     if (err) throw err
 
@@ -54,8 +63,19 @@ app.get('/new/*', function(req, res) {
       }
     })   
   })
+}
 
-})
+function checkUrlExists(original_url, parent_res, callback) {
+  request(encodeURI(original_url), function (err, res) {
+    if (!err && res.statusCode >= 200 && res.statusCode < 400) {
+      console.log("exists")
+      callback(parent_res, original_url)
+    } else {
+      console.log("does not exist")
+      parent_res.end("NULL")
+    }
+  })
+}
 
 function idToShortUrl(id) {
   var map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
