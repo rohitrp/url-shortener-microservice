@@ -56,7 +56,9 @@ app.get('/*', function(req, res) {
       short_url: 1
     }).toArray(function(err, data) {
       if (data.length == 0) {
-        res.end("Invalid link")
+        res.json({
+          error: "Invalid short URL"
+        })
       } else {
         res.redirect(data[0].original_url)
       }
@@ -117,7 +119,9 @@ function checkUrlExists(original_url, parent_res, callback) {
       callback(parent_res, original_url)
     } else {
       console.log("does not exist")
-      parent_res.end("NULL")
+      parent_res.json({
+        error: "Invalid URL"
+      })
     }
   })
 }
