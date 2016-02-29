@@ -2,7 +2,6 @@ var express = require('express')
   , url = require('url')
   , http = require('http')
   , request = require('request')
-  , open = require('open')
   , mongo = require('mongodb').MongoClient
   , mongoUrl = process.env.MONGO || "mongodb://localhost:27017/freecodecamp"
   , app = express()
@@ -59,8 +58,7 @@ app.get('/*', function(req, res) {
       if (data.length == 0) {
         res.end("Invalid link")
       } else {
-        open(data[0].original_url)
-        res.end("Link opened in a new tab")
+        res.redirect(data[0].original_url)
       }
     })
   })
