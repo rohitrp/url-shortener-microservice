@@ -3,7 +3,7 @@ var express = require('express')
   , http = require('http')
   , request = require('request')
   , mongo = require('mongodb').MongoClient
-  , mongoUrl = "mongodb://localhost:27017/freecodecamp"
+  , mongoUrl = process.env.MONGO || "mongodb://localhost:27017/freecodecamp"
   , app = express()
   , port = process.env.PORT || 3000
 
@@ -14,6 +14,7 @@ app.get('/', function(req, res) {
 })
 
 app.get('/new/*', function(req, res) {
+
   var original_url = 'http://' + url.parse(req.url, true).path.replace(/\/new\/|http:\/\/|https:\/\//gi, '')
   
   console.log(original_url)
@@ -107,11 +108,11 @@ app.get('/init', function(req, res) {
   })
 })
 
-function shortUrltoId(original_url) {
+function shortUrltoId(short_url) {
   var id = 0
   
-  for (var i = 0; i < original_url.length; i++) {
-    var ch = original_url.charAt(i)
+  for (var i = 0; i < short_url.length; i++) {
+    var ch = short_url.charAt(i)
     
     if ('a' <= ch && ch <= 'z') {
       id = id * 62 + ch.charCodeAt(0) - 'a'.charCodeAt(0)
