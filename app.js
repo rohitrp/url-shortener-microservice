@@ -15,6 +15,24 @@ app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/index.html')
 })
 
+// Route to initialize the sequence counter
+app.get('/init', function(req, res) {
+  mongo.connect(mongoUrl, function(err, db) {
+    var collection = db.collection('urls')
+    
+    collection.remove({})
+    
+    collection.insert({
+      _id: 'urlId',
+      sequence_value: 0
+    }, function(err) {
+      if (err) throw err
+      db.close()
+      res.end("Database initialized")
+    })
+  })
+})
+
 app.get('/new/*', function(req, res) {
 
   var original_url = 'http://' + url.parse(req.url, true).path.replace(/\/new\/|http:\/\/|https:\/\//gi, '')
@@ -117,24 +135,6 @@ function idToShortUrl(id) {
   
   return shortUrl.join('')
 }
-
-// Route to initialize the sequence counter
-app.get('/init', function(req, res) {
-  mongo.connect(mongoUrl, function(err, db) {
-    var collection = db.collection('urls')
-    
-    collection.remove({})
-    
-    collection.insert({
-      _id: 'urlId',
-      sequence_value: 0
-    }, function(err) {
-      if (err) throw err
-      db.close()
-      res.end("Database initialized")
-    })
-  })
-})
 
 function shortUrltoId(short_url) {
   var id = 0
