@@ -2,10 +2,12 @@ var express = require('express')
   , url = require('url')
   , http = require('http')
   , request = require('request')
+  , open = require('open')
   , mongo = require('mongodb').MongoClient
   , mongoUrl = process.env.MONGO || "mongodb://localhost:27017/freecodecamp"
   , app = express()
   , port = process.env.PORT || 3000
+  , host = process.env.HOST_URL || "http://localhost:3000/"
 
 app.use('/', express.static(__dirname + '/public'))
 
@@ -21,6 +23,29 @@ app.get('/new/*', function(req, res) {
   
   checkUrlExists(original_url, res, insertData)  
   
+})
+
+app.get('/*', function(req, res) {
+  var short_url = url.parse(req.url, true).pathname.replace('/', '')
+  
+  mongo.connect(mongoUrl, function(err, db) {
+    var collection = db.collection('urls')
+    
+    collection.find({
+      short_url: short_url
+    }, {
+      _id: 0,
+      original_url: 1,
+      short_url: 1
+    }).toArray(function(err, data) {
+      if (data.length == 0) {
+        res.end("Invalid link")
+      } else {
+        open(data[0].original_url)
+        res.end("Link opened in a new tab")
+      }
+    })
+  })
 })
 
 function insertData(res, original_url) {
@@ -53,16 +78,19 @@ function insertData(res, original_url) {
               db.close()
               res.json({
                 original_url: original_url,
-                short_url: idToShortUrl(updated.value.sequence_value)
+                short_url: host + idToShortUrl(updated.value.sequence_value)
               })
             })
           }
         )
       } else {
         db.close()
-        res.json(data[0])
-      }
-    })   
+        res.json({
+          original_url: data[0].original_url,
+          short_url: host + data[0].short_url
+        })
+      }   
+    })
   })
 }
 
