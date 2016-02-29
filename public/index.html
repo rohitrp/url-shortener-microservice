@@ -3,11 +3,39 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL Shortener</title>
+    
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,600' rel='stylesheet' type='text/css'>
+
+    
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <div class="container">
-      <h1>URL Shortener</h1>
+      <h1 class="header">URL Shortener Microservice</h1>
+      <blockquote>
+        <h3>Usage</h3>
+        <div class="code">
+          <code>
+            http://url-shortener-1.herokuapp.com/new/google.com
+          </code><br>
+          <code>
+            http://url-shortener-1.herokuapp.com/a
+          </code>
+        </div>
+        <h3>Output</h3>
+        <div class="code">
+          <code>  
+            <pre>  
+              {
+                "original_url":"http://google.com",
+                "short_url":"http://url-shortener-1.herokuapp.com/a"
+              }
+            </pre>
+          </code>
+        </div>
+      </blockquote>
     </div>
   </body>
 </html>

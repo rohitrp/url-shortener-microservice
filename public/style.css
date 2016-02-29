@@ -1,0 +1,25 @@
+body {
+  width: 100%;
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+
+::selection {
+  background: rgb(139, 195, 74);
+  color: white;
+}
+
+pre {
+  padding: 0;
+}
+
+h3 {
+  border-bottom: 1px solid #777;
+  width: 80px;
+  padding-bottom: 10px;
+}
+
+.code {
+  padding: 10px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+}
